@@ -31,6 +31,7 @@ namespace AOC
                     var line = string.Concat((Enumerable.Repeat(lines[i], (slope.Item1+1) * (i))));
                     if (line[slope.Item1 * i/slope.Item2] == '#') trees++;
                 }
+                ans *= trees;
             }
             Console.WriteLine(ans);
         }
