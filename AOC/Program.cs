@@ -11,26 +11,19 @@ namespace AOC
     {
         static void Main(string[] args)
         {
-            var inputFile = @"e:\git\aoc2020\input\Day2A.txt";
-            var input = File.ReadAllLines(inputFile);//.Select(y => int.Parse(y)).ToArray();
+            var inputFile = @"e:\git\aoc2020\input\Day3A.txt";
+            var lines = File.ReadAllLines(inputFile);//.Select(y => int.Parse(y)).ToArray();
 
-            var goodPasswords = 0;
-            foreach (var i in input)
+            var trees = 0;
+            for (int i = 1; i < lines.Length; i++)
             {
-                var lines = i.Split(' ');
-                var least = lines[0].Split('-').Select(y => int.Parse(y)).ToArray()[0];
-                var most = lines[0].Split('-').Select(y => int.Parse(y)).ToArray()[1];
+                // make sure we have enough repeats
+                var line = string.Concat((Enumerable.Repeat(lines[i],3 * (i))));
 
-                var passwordChar = lines[1][0];
-
-                if ((lines[2][least - 1] == passwordChar && lines[2][most - 1] != passwordChar) ||
-                        (lines[2][most - 1] == passwordChar && lines[2][least - 1] != passwordChar))
-
-                    goodPasswords++;
+                if (line[3 * i] == '#') trees++;
+                
             }
-
-            Console.WriteLine(goodPasswords);
-
+            Console.WriteLine(trees);
         }
     }
 }
