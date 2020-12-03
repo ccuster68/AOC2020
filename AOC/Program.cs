@@ -18,19 +18,19 @@ namespace AOC
             foreach (var i in input)
             {
                 var lines = i.Split(' ');
-                var least = lines[0].Split('-').Select(y=>int.Parse(y)).ToArray()[0];
+                var least = lines[0].Split('-').Select(y => int.Parse(y)).ToArray()[0];
                 var most = lines[0].Split('-').Select(y => int.Parse(y)).ToArray()[1];
 
                 var passwordChar = lines[1][0];
 
-                var charCount = lines[2].Count(y => y == passwordChar);
+                if ((lines[2][least - 1] == passwordChar && lines[2][most - 1] != passwordChar) ||
+                        (lines[2][most - 1] == passwordChar && lines[2][least - 1] != passwordChar))
 
-
-                if (charCount >= least && charCount <= most) goodPasswords++;
+                    goodPasswords++;
             }
 
             Console.WriteLine(goodPasswords);
-            
+
         }
     }
 }
