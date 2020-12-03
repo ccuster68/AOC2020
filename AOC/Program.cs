@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AOC
 {
@@ -13,23 +11,25 @@ namespace AOC
         {
             var inputFile = @"e:\git\aoc2020\input\Day3A.txt";
             var lines = File.ReadAllLines(inputFile);//.Select(y => int.Parse(y)).ToArray();
-            List<(int, int)> slopes = new List<(int, int)>();
-            slopes.Add((1, 1));
-            slopes.Add((3, 1));
-            slopes.Add((5, 1));
-            slopes.Add((7, 1));
-            slopes.Add((1, 2));
+            List<(int h, int v)> slopes = new List<(int, int)>
+            {
+                (1, 1),
+                (3, 1),
+                (5, 1),
+                (7, 1),
+                (1, 2)
+            };
 
             Int64 ans = 1;
 
-            foreach (var slope in slopes)
+            foreach (var (h, v) in slopes)
             {
                 var trees = 0;
-                for (int i = slope.Item2; i < lines.Length; i +=slope.Item2)
+                for (int i = v; i < lines.Length; i += v)
                 {
                     // make sure we have enough repeats
-                    var line = string.Concat((Enumerable.Repeat(lines[i], (slope.Item1+1) * (i))));
-                    if (line[slope.Item1 * i/slope.Item2] == '#') trees++;
+                    var line = string.Concat(Enumerable.Repeat(lines[i], (h + 1) * i));
+                    if (line[h * i / v] == '#') trees++;
                 }
                 ans *= trees;
             }
