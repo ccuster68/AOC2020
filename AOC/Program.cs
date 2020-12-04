@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -9,29 +8,24 @@ namespace AOC
     {
         static void Main(string[] args)
         {
-            var inputFile = @"e:\git\aoc2020\input\Day3A.txt";
-            var lines = File.ReadAllLines(inputFile);//.Select(y => int.Parse(y)).ToArray();
-            List<(int h, int v)> slopes = new List<(int, int)>
-            {
-                (1, 1),
-                (3, 1),
-                (5, 1),
-                (7, 1),
-                (1, 2)
-            };
+            var inputFile = @"e:\git\aoc2020\input\Day4A.txt";
+            var lines = File.ReadAllText(inputFile).Replace($"{Environment.NewLine}{Environment.NewLine}", "~");
+            var passports = lines.Split('~');
+            var ans = 0;
 
-            Int64 ans = 1;
-
-            foreach (var (h, v) in slopes)
+            foreach (var passport in passports)
             {
-                var trees = 0;
-                for (int i = v; i < lines.Length; i += v)
-                {
-                    // make sure we have enough repeats
-                    var line = string.Concat(Enumerable.Repeat(lines[i], (h + 1) * i));
-                    if (line[h * i / v] == '#') trees++;
-                }
-                ans *= trees;
+                // separate each passport into it's parts
+                var parts = passport.Replace($"{Environment.NewLine}", "~").Replace(' ', '~').Split('~');
+                if (parts.Length < 7) continue;
+                if (!parts.Where(p => p.Substring(0, 4) == "byr:").Any()) continue;
+                if (!parts.Where(p => p.Substring(0, 4) == "iyr:").Any()) continue;
+                if (!parts.Where(p => p.Substring(0, 4) == "eyr:").Any()) continue;
+                if (!parts.Where(p => p.Substring(0, 4) == "hgt:").Any()) continue;
+                if (!parts.Where(p => p.Substring(0, 4) == "hcl:").Any()) continue;
+                if (!parts.Where(p => p.Substring(0, 4) == "ecl:").Any()) continue;
+                if (!parts.Where(p => p.Substring(0, 4) == "pid:").Any()) continue;
+                ans++;
             }
             Console.WriteLine(ans);
         }
