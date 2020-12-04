@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace AOC
 {
@@ -18,13 +19,13 @@ namespace AOC
                 // separate each passport into it's parts
                 var parts = passport.Replace($"{Environment.NewLine}", "~").Replace(' ', '~').Split('~');
                 if (parts.Length < 7) continue;
-                if (!parts.Where(p => p.Substring(0, 4) == "byr:").Any()) continue;
-                if (!parts.Where(p => p.Substring(0, 4) == "iyr:").Any()) continue;
-                if (!parts.Where(p => p.Substring(0, 4) == "eyr:").Any()) continue;
-                if (!parts.Where(p => p.Substring(0, 4) == "hgt:").Any()) continue;
-                if (!parts.Where(p => p.Substring(0, 4) == "hcl:").Any()) continue;
-                if (!parts.Where(p => p.Substring(0, 4) == "ecl:").Any()) continue;
-                if (!parts.Where(p => p.Substring(0, 4) == "pid:").Any()) continue;
+                if (!parts.Where(p => Regex.Match(p, "^byr:").Success).Any()) continue;
+                if (!parts.Where(p => Regex.Match(p, "^iyr:").Success).Any()) continue;
+                if (!parts.Where(p => Regex.Match(p, "^eyr:").Success).Any()) continue;
+                if (!parts.Where(p => Regex.Match(p, "^hgt:").Success).Any()) continue;
+                if (!parts.Where(p => Regex.Match(p, "^hcl:").Success).Any()) continue;
+                if (!parts.Where(p => Regex.Match(p, "^ecl:").Success).Any()) continue;
+                if (!parts.Where(p => Regex.Match(p, "^pid:").Success).Any()) continue;
                 ans++;
             }
             Console.WriteLine(ans);
