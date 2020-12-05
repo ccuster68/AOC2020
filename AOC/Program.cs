@@ -9,25 +9,34 @@ namespace AOC
     {
         static void Main(string[] args)
         {
-            var inputFile = @"e:\git\aoc2020\input\Day4A.txt";
-            var lines = File.ReadAllText(inputFile).Replace($"{Environment.NewLine}{Environment.NewLine}", "~");
-            var passports = lines.Split('~');
-            var ans = 0;
+            var inputFile = @"e:\git\aoc2020\input\Day5A.txt";
+            var lines = File.ReadAllLines(inputFile);
 
-            foreach (var passport in passports)
+            var ans = 0d;
+
+            foreach (var line in lines)
             {
-                // separate each passport into it's parts
-                var parts = passport.Replace($"{Environment.NewLine}", "~").Replace(' ', '~').Split('~');
-                if (parts.Length < 7) continue;
-                if (!parts.Where(p => Regex.Match(p, "^byr:(19[2-9]\\d|200[0-2])$").Success).Any()) continue;
-                if (!parts.Where(p => Regex.Match(p, "^iyr:(201\\d|2020)$").Success).Any()) continue;
-                if (!parts.Where(p => Regex.Match(p, "^eyr:(202\\d|2030)$").Success).Any()) continue;
-                if (!parts.Where(p => Regex.Match(p, "^hgt:(1[5-8]\\dcm|19[0-3]cm|59in|6\\din|7[0-6]in)$").Success).Any()) continue;
-                if (!parts.Where(p => Regex.Match(p, "^hcl:(#[a-f0-9]{6})$").Success).Any()) continue;
-                if (!parts.Where(p => Regex.Match(p, "^ecl:(amb|blu|brn|gry|grn|hzl|oth)$").Success).Any()) continue;
-                if (!parts.Where(p => Regex.Match(p, "^pid:\\d{9}$").Success).Any()) continue;
+                var b = 127d;
+                var f = 0d;
+                var r = 7d;
+                var l = 0d;
+                for (int i = 6; i >= 0; i--)
+                {
+                    if (line[6 - i] == 'F')
+                        b -= Math.Pow(2, i);
+                    else
+                        f += Math.Pow(2, i);
 
-                ans++;
+                    // 2-1-0
+                    if (i < 3)
+                    {
+                        if (line[9 - i] == 'L')
+                            r -= Math.Pow(2, i);
+                        else
+                            l += Math.Pow(2, i);
+                    }
+                }
+                ans = Math.Max(ans, f * 8 + l);
             }
             Console.WriteLine(ans);
         }
