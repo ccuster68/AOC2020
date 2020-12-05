@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -13,7 +14,7 @@ namespace AOC
             var lines = File.ReadAllLines(inputFile);
 
             var ans = 0d;
-
+            var list = new List<double>();
             foreach (var line in lines)
             {
                 var b = 127d;
@@ -36,7 +37,17 @@ namespace AOC
                             l += Math.Pow(2, i);
                     }
                 }
-                ans = Math.Max(ans, f * 8 + l);
+                list.Add(f * 8 + l);
+            }
+
+            list.Sort();
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (list[i] + 1 != list[i + 1])
+                {
+                    ans = list[i] + 1;
+                    break;
+                }
             }
             Console.WriteLine(ans);
         }
