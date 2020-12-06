@@ -10,7 +10,7 @@ namespace AOC
     {
         static void Main(string[] args)
         {
-            var inputFile = @"e:\git\aoc2020\input\Day5A.txt";
+            var inputFile = @"e:\git\aoc2020\input\Day6ATEST.txt";
             var lines = File.ReadAllLines(inputFile);
 
             var ans = 0d;
