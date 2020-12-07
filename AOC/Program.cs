@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace AOC
 {
@@ -8,23 +10,23 @@ namespace AOC
     {
         static void Main(string[] args)
         {
-            var inputFile = @"e:\git\aoc2020\input\Day6A.txt";
-            var lines = File.ReadAllText(inputFile).Replace($"{Environment.NewLine}{Environment.NewLine}", "~");
-            var groups = lines.Split('~');
-
-            var ans = 0;
-            foreach (var group in groups)
-            {
-                var people = group.Replace($"{Environment.NewLine}","~").Split('~');
-                var groupCount = 0;
-                foreach(var c in people[0])
-                {
-                    if (people.Count(p => p.Contains(c)) == people.Length) groupCount++;
-                }
-                ans += groupCount;
-            }
+            var inputFile = @"e:\git\aoc2020\input\Day7A.txt";
+            var lines = File.ReadAllLines(inputFile);
+            // Get direct rules that contain shiny gold bags
             
-            Console.WriteLine(ans);
+            var bagList = lines.Where(r => Regex.Match(r, "contain .*shiny gold bag").Success).Select(r => r.Substring(0, r.IndexOf("s contain "))).ToList();
+            do
+            {
+                var lastCount = bagList.Count;
+                // Add bags that are not in the bagList and can contain a bag that contains the shiny gold bag
+                bagList.AddRange(
+                    lines.Where(r => !bagList.Contains(r.Substring(0, r.IndexOf("s contain "))) && bagList.Any(bl => Regex.Match(r, $"contain.* {bl}").Success))
+                    .Select(r => r.Substring(0, r.IndexOf("s contain "))).ToList());
+                if (bagList.Count==lastCount) break;
+            } while (true) ;
+
+                        
+            Console.WriteLine(bagList.Count);
         }
     }
 }
