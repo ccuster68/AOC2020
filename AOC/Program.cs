@@ -8,28 +8,27 @@ namespace AOC
 {
     class Program
     {
-
+        static int acc;
         static void Main(string[] args)
         {
             var inputFile = @"e:\git\aoc2020\input\Day8A.txt";
-            var lines = File.ReadAllLines(inputFile);
-            var operations = new List<(string op, int arg)>();
+            // get and put input into array of operation, arg
+            (string op, int arg)[] operations = File.ReadAllLines(inputFile).Select(l => (l.Split(' ')[0], int.Parse(l.Split(' ')[1]))).ToArray();
+            // holds if an operation has already been hit, infinite loop
             var operationsHit = new List<int>();
-            var acc = 0;
-            var pos = 0;
-            foreach (var line in lines)
-            {
-                operations.Add((line.Split(' ')[0], int.Parse(line.Split(' ')[1])));
-            }
 
+            process(operations, operationsHit);
+            Console.WriteLine(acc);
+        }
 
-
+        static bool process((string op, int arg)[] operations, List<int> operationsHit)
+        {
+            acc = 0; // set accumulator total
+            var pos = 0; // starting postition
             do
             {
-                if (operationsHit.Contains(pos)) break;
-
                 operationsHit.Add(pos);
-
+                // handle operation
                 switch (operations[pos].op)
                 {
                     case "acc":
@@ -45,9 +44,9 @@ namespace AOC
                     default:
                         break;
                 }
-            } while (true);
+            } while (!operationsHit.Contains(pos));
 
-            Console.WriteLine(acc);
+            return true;
         }
     }
 }
