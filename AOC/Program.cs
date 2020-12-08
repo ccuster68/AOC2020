@@ -9,44 +9,61 @@ namespace AOC
     class Program
     {
         static string[] lines;
+        static Dictionary<string, Dictionary<int, int>> listOfBags = new Dictionary<string, Dictionary<int, int>>();
         static void Main(string[] args)
         {
             var inputFile = @"e:\git\aoc2020\input\Day7ATEST.txt";
             lines = File.ReadAllLines(inputFile);
             // get bags that are in shiny gold bag
 
-            Int64 count = GetBagCount("1 shiny gold bag");
+            ProcessBag("1 shiny gold bag", 0);
 
+            Double count = 0;
+            foreach (var bag in listOfBags)
+            {
+                foreach (var subBags in bag.Value)
+                {
+                    count += Math.Pow(subBags.Value, subBags.Key);
+                }
+            }
+            
             Console.WriteLine(count);
-
         }
 
-        private static Int64 GetBagCount(string bagInfo)
+        // Dictionary of level / bag
+        private static void ProcessBag(string bagInfo, int level)
         {
-            int multiplier;
-            // when first string is not a number, then there are no more container bags
+            var numberOfBags = 0;
             try
             {
-                multiplier = int.Parse(bagInfo.Split(' ').First());
+                numberOfBags = int.Parse(bagInfo.Split(' ').First());
             }
             catch
             {
-                return 1;
+                return;
             }
-            Int64 retValue = multiplier;
-            var bagName = bagInfo.Replace(".","").Substring(multiplier.ToString().Length + 1) + (multiplier > 1 ? " contain " : "s contain ");
-
+            // Will turn 1 shiny gold bags contain 2 dark red bags. to shiny gold bags contain
+            var bagName = bagInfo.Replace(".", "").Substring(numberOfBags.ToString().Length + 1);
+            bagName += bagName.EndsWith("bags") ? "" : "s";
+            var bagSearchName = bagName + " contain ";
             // Get list of bags in this bag
-            var bagList = lines.Where(r => Regex.Match(r, $"^{bagName}").Success)
-                                .Select(r => r.Substring(bagName.Length)).First().Split(',').Select(bl => bl.Trim()).ToList();
+            var bagList = lines.Where(r => Regex.Match(r, $"^{bagSearchName}").Success)
+                                .Select(r => r.Substring(bagSearchName.Length)).First().Split(',').Select(bl => bl.Trim()).ToList();
 
-
-            // assuming bags always have container
             foreach (var bag in bagList)
             {
-                retValue += GetBagCount(bag);
+                if (level>0)
+                {
+                    var dicToAdd = new Dictionary<int, int>
+                    {
+                        { level, numberOfBags }
+                    };
+                    listOfBags.Add(bagName, dicToAdd);
+                }
+                level++;
+                ProcessBag(bag, level);
             }
-            return retValue;
+
         }
     }
 }
