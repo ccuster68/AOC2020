@@ -8,40 +8,46 @@ namespace AOC
 {
     class Program
     {
-        static string[] lines;
-        static List<int> listOfBags = new List<int>();
-        static int ttlBags;
 
         static void Main(string[] args)
         {
-            var inputFile = @"e:\git\aoc2020\input\Day7A.txt";
-            lines = File.ReadAllLines(inputFile);
-
-            ProcessBag("1 shiny gold bag", 1);
-
-            Console.WriteLine(ttlBags);
-        }
-
-        // Dictionary of level / bag
-        private static void ProcessBag(string bagInfo, int multiple)
-        {
-            var numberOfBags = int.Parse(bagInfo.Split(' ').First());
-
-            // Will turn 1 shiny gold bags contain 2 dark red bags. to shiny gold bags contain
-            var bagName = bagInfo.Replace(".", "").Substring(numberOfBags.ToString().Length + 1);
-            bagName += bagName.EndsWith("bags") ? "" : "s";
-            var bagSearchName = bagName + " contain ";
-            // Get list of bags in this bag
-            var bagList = lines.Where(r => Regex.Match(r, $"^{bagSearchName}").Success)
-                                .Select(r => r.Substring(bagSearchName.Length)).First().Split(',').Select(bl => bl.Trim()).ToList();
-
-            foreach (var bag in bagList)
+            var inputFile = @"e:\git\aoc2020\input\Day8A.txt";
+            var lines = File.ReadAllLines(inputFile);
+            var operations = new List<(string op, int arg)>();
+            var operationsHit = new List<int>();
+            var acc = 0;
+            var pos = 0;
+            foreach (var line in lines)
             {
-                if (bag == "no other bags.") continue;
-                numberOfBags = int.Parse(bag.TrimStart().Split(' ').First()) * multiple;
-                ttlBags += numberOfBags;
-                ProcessBag(bag, numberOfBags);
+                operations.Add((line.Split(' ')[0], int.Parse(line.Split(' ')[1])));
             }
+
+
+
+            do
+            {
+                if (operationsHit.Contains(pos)) break;
+
+                operationsHit.Add(pos);
+
+                switch (operations[pos].op)
+                {
+                    case "acc":
+                        acc += operations[pos].arg;
+                        pos++;
+                        break;
+                    case "jmp":
+                        pos += operations[pos].arg;
+                        break;
+                    case "nop":
+                        pos++;
+                        break;
+                    default:
+                        break;
+                }
+            } while (true);
+
+            Console.WriteLine(acc);
         }
     }
 }
