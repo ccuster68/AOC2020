@@ -9,29 +9,27 @@ namespace AOC
     class Program
     {
         static string[] lines;
-        static Dictionary<string, Dictionary<int, int>> listOfBags = new Dictionary<string, Dictionary<int, int>>();
+        static List<(int numberOfBags, int multiple)> listOfBags = new List<(int, int)>();
+        
         static void Main(string[] args)
         {
             var inputFile = @"e:\git\aoc2020\input\Day7ATEST.txt";
             lines = File.ReadAllLines(inputFile);
             // get bags that are in shiny gold bag
 
-            ProcessBag("1 shiny gold bag", 0);
+            ProcessBag("1 shiny gold bag", 1);
 
             Double count = 0;
             foreach (var bag in listOfBags)
             {
-                foreach (var subBags in bag.Value)
-                {
-                    count += Math.Pow(subBags.Value, subBags.Key);
-                }
+                count += bag.multiple;
             }
-            
+
             Console.WriteLine(count);
         }
 
         // Dictionary of level / bag
-        private static void ProcessBag(string bagInfo, int level)
+        private static void ProcessBag(string bagInfo, int multiple)
         {
             var numberOfBags = 0;
             try
@@ -50,18 +48,23 @@ namespace AOC
             var bagList = lines.Where(r => Regex.Match(r, $"^{bagSearchName}").Success)
                                 .Select(r => r.Substring(bagSearchName.Length)).First().Split(',').Select(bl => bl.Trim()).ToList();
 
+            List<(string bag, int level)> bagsToProcess = new List<(string bag, int level)>();
             foreach (var bag in bagList)
             {
-                if (level>0)
+                try
                 {
-                    var dicToAdd = new Dictionary<int, int>
-                    {
-                        { level, numberOfBags }
-                    };
-                    listOfBags.Add(bagName, dicToAdd);
+                    numberOfBags = int.Parse(bag.TrimStart().Split(' ').First());
+                    listOfBags.Add((numberOfBags, numberOfBags*multiple));
+                    bagsToProcess.Add((bag, numberOfBags));
                 }
-                level++;
-                ProcessBag(bag, level);
+                catch
+                {
+                    // no other bags
+                }
+            }
+            foreach (var bag in bagsToProcess)
+            {
+                ProcessBag(bag.bag, bag.level);
             }
 
         }
