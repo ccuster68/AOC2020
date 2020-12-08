@@ -10,22 +10,16 @@ namespace AOC
     {
         static string[] lines;
         static List<int> listOfBags = new List<int>();
-        
+        static int ttlBags;
+
         static void Main(string[] args)
         {
             var inputFile = @"e:\git\aoc2020\input\Day7A.txt";
             lines = File.ReadAllLines(inputFile);
-            // get bags that are in shiny gold bag
 
             ProcessBag("1 shiny gold bag", 1);
 
-            //Double count = 0;
-            //foreach (var bagCount in listOfBags)
-            //{
-            //    count += bag.multiple;
-            //}
-
-            Console.WriteLine(listOfBags.Sum());
+            Console.WriteLine(ttlBags);
         }
 
         // Dictionary of level / bag
@@ -41,25 +35,13 @@ namespace AOC
             var bagList = lines.Where(r => Regex.Match(r, $"^{bagSearchName}").Success)
                                 .Select(r => r.Substring(bagSearchName.Length)).First().Split(',').Select(bl => bl.Trim()).ToList();
 
-            List<(string bag, int multiple)> bagsToProcess = new List<(string, int)>();
             foreach (var bag in bagList)
             {
-                try
-                {
-                    numberOfBags = int.Parse(bag.TrimStart().Split(' ').First())*multiple;
-                    listOfBags.Add(numberOfBags);
-                    bagsToProcess.Add((bag, numberOfBags));
-                }
-                catch
-                {
-                    // no other bags
-                }
+                if (bag == "no other bags.") continue;
+                numberOfBags = int.Parse(bag.TrimStart().Split(' ').First()) * multiple;
+                ttlBags += numberOfBags;
+                ProcessBag(bag, numberOfBags);
             }
-            foreach (var bag in bagsToProcess)
-            {
-                ProcessBag(bag.bag, bag.multiple);
-            }
-
         }
     }
 }
