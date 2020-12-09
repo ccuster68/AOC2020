@@ -11,59 +11,38 @@ namespace AOC
         static int acc;
         static void Main(string[] args)
         {
-            var inputFile = @"e:\git\aoc2020\input\Day8A.txt";
+            var inputFile = @"e:\git\aoc2020\input\Day9A.txt";
             // get and put input into array of operation, arg
-            (string op, int arg)[] operations = File.ReadAllLines(inputFile).Select(l => (l.Split(' ')[0], int.Parse(l.Split(' ')[1]))).ToArray();
-            
-            var opsToSwitch = new []{ "jmp", "nop" };
-
-            for (int i = 0; i < operations.Length; i++)
+            var input = File.ReadAllLines(inputFile).Select(i => Int64.Parse(i)).ToArray();
+            const int preamble = 25;
+            var match = false;
+            for (int i = preamble; i < input.Length; i++)
             {
-                // holds operations that have been address, infinite loop
-                var operationsHit = new List<int>();
-                
-                if (opsToSwitch.Contains(operations[i].op))
+                for (int j = i - 1; j > i - preamble; j--)
                 {
-                    operations[i].op = operations[i].op == "jmp" ? "nop" : "jmp";
-                    if (Process(operations, operationsHit)) break;
-                    // revert change, it did not work
-                    operations[i].op = operations[i].op == "jmp" ? "nop" : "jmp";
+                    for (int k = j - 1; k >= i - preamble; k--)
+                    {
+                        // is there a match
+                        if (input[j] + input[k] == input[i])
+                        {
+                            match = true;
+                            break;
+                        }
+                    }
+                    if (match)
+                        break;
+                }
+                if (!match)
+                {
+                    Console.WriteLine(input[i]);
+                    break;
+                }
+                else
+                {
+                    match = false;
                 }
             }
 
-            Console.WriteLine(acc);
-        }
-
-        // return true if able to get to 1 past end of operations
-        static bool Process((string op, int arg)[] operations, List<int> operationsHit)
-        {
-            acc = 0; // reset accumulator total
-            var pos = 0; // res postition to start
-            do
-            {
-                // We found last operation
-                if (pos == operations.Length) return true;
-                // We found Infinite Loop
-                if (operationsHit.Contains(pos)) return false;
-                
-                operationsHit.Add(pos);
-                // handle operation
-                switch (operations[pos].op)
-                {
-                    case "acc":
-                        acc += operations[pos].arg;
-                        pos++;
-                        break;
-                    case "jmp":
-                        pos += operations[pos].arg;
-                        break;
-                    case "nop":
-                        pos++;
-                        break;
-                    default:
-                        break;
-                }
-            } while (true);
         }
     }
 }
