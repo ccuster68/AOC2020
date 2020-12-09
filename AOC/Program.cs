@@ -16,6 +16,9 @@ namespace AOC
             var input = File.ReadAllLines(inputFile).Select(i => Int64.Parse(i)).ToArray();
             const int preamble = 25;
             var match = false;
+            var nonMatchinNumber = 0l;
+            var indexNotFound = 0;
+            // get non matching number                       
             for (int i = preamble; i < input.Length; i++)
             {
                 for (int j = i - 1; j > i - preamble; j--)
@@ -34,7 +37,8 @@ namespace AOC
                 }
                 if (!match)
                 {
-                    Console.WriteLine(input[i]);
+                    nonMatchinNumber = input[i];
+                    indexNotFound = i;
                     break;
                 }
                 else
@@ -42,6 +46,33 @@ namespace AOC
                     match = false;
                 }
             }
+
+            
+            // now find congiguous match of non match
+            for (int i = 0; i < indexNotFound; i++)
+            {
+                long value = input[i];
+                var k = i;
+                do
+                {
+                    k++;
+                    if (k == input.Length) break;
+                    value += input[k];
+                } while (value < nonMatchinNumber);
+                if (value == nonMatchinNumber)
+                {
+                    var max = 0l;
+                    var min = long.MaxValue;
+                    for (int j = i; j <= k; j++)
+                    {
+                        max = Math.Max(max, input[j]);
+                        min = Math.Min(min, input[j]);
+                    }
+                    Console.WriteLine(max+min);
+                    break;
+                }             
+            }
+
 
         }
     }
