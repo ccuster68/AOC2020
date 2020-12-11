@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace AOC
@@ -10,52 +11,73 @@ namespace AOC
     {
         static void Main(string[] args)
         {
-            var inputFile = @"e:\git\aoc2020\input\Day10.txt";
+            var inputFile = @"e:\git\aoc2020\input\Day11.txt";
             // get and put input into array of operation, arg
-            var input = File.ReadAllLines(inputFile).Select(i => Int64.Parse(i)).ToList();
-            input.Sort();
-            long ans = 1;
-            // only care about 3s and 1s since they are definite, but 2s can be derived
-            var listJumps = new List<long>();
+            var rows = File.ReadAllLines(inputFile).Select(s => new StringBuilder($".{s}.")).ToList();
+            //pad the seat chart
+            rows.Insert(0, new StringBuilder(new string('.', rows[0].Length + 2)));
+            rows.Add(new StringBuilder(new string('.', rows[0].Length + 2)));
 
-            for (int i = 0; i < input.Count - 1; i++)
+            var seatsTaken = 0;
+            var stillWorking = false;
+            //  If a seat is empty (L) and there are no occupied seats adjacent to it, the seat becomes occupied.
+            //  If a seat is occupied(#) and four or more seats adjacent to it are also occupied, the seat becomes empty.
+            //  Otherwise, the seat's state does not change.
+            do
             {
-                var diff = input[i + 1] - input[i];
-                listJumps.Add(diff);
-            }
+                stillWorking = false;
+                var rowsClone = rows.ConvertAll(r => new StringBuilder(r.ToString())).ToList();
 
-            // look for coniguous 1s
-            for (int i = 0; i < listJumps.Count; i++)
-            {
 
-                if (listJumps[i] == 3) continue;
-                // 7 combos of  1111: 
-                if (i + 3 < listJumps.Count && listJumps[i + 1] == 1 && listJumps[i + 2] == 1 && listJumps[i + 3] == 1)
+                for (int row = 1; row < rows.Count - 1; row++)
                 {
-                    ans *= 7;
-                    i += 3;
-                    continue;
+                    for (int column = 1; column < rows[row].Length - 1; column++)
+                    {
+                        //L
+                        if (rowsClone[row][column] == 'L')
+                        {
+                            if (hasNoAdjacentSeats(rowsClone, row, column))
+                            {
+                                rows[row][column] = '#';
+                                seatsTaken++;
+                                stillWorking = true;
+                            }
+                        }
+                        //#
+                        if (rowsClone[row][column] == '#')
+                        {
+                            if (hasFourAdjacentOccupiedSeats(rowsClone, row, column))
+                            {
+                                rows[row][column] = 'L';
+                                seatsTaken--;
+                                stillWorking = true;
+                            }
+                        }
+                    }
                 }
+            } while (stillWorking);
 
-                // we add six since there are 4 combos of  111: 2! or 3,21,12,
-                if (i + 2 < listJumps.Count && listJumps[i + 1] == 1 && listJumps[i + 2] == 1)
-                {
-                    // if it is the start then there are four 1s, so up the multiplier
-                    if (i == 0) ans *= 7;
-                    else ans *= 4;
-                    i += 2;
-                    continue;
-                }
-                // we have a 1 check for next being 1
-                if (i + 1 < listJumps.Count && listJumps[i + 1] == 1)
-                {
-                    ans *= 2;
-                    i++;
-                    continue;
-                }
-            }
+            Console.WriteLine(seatsTaken);
+        }
 
-            Console.WriteLine(ans);
+        private static bool hasNoAdjacentSeats(List<StringBuilder> rows, int row, int column)
+        {
+            if (rows[row - 1][column - 1] != '#' && rows[row - 1][column] != '#' && rows[row - 1][column + 1] != '#' &&
+                rows[row][column - 1] != '#' && rows[row][column + 1] != '#' &&
+                rows[row + 1][column - 1] != '#' && rows[row + 1][column] != '#' && rows[row + 1][column + 1] != '#')
+                return true;
+
+            return false;
+        }
+
+        private static bool hasFourAdjacentOccupiedSeats(List<StringBuilder> rows, int row, int column)
+        {
+            if ((rows[row - 1][column - 1] == '#' ? 1 : 0) + (rows[row - 1][column] == '#' ? 1 : 0) + (rows[row - 1][column + 1] == '#' ? 1 : 0) +
+                (rows[row][column - 1] == '#' ? 1 : 0) + (rows[row][column + 1] == '#' ? 1 : 0) +
+                (rows[row + 1][column - 1] == '#' ? 1 : 0) + (rows[row + 1][column] == '#' ? 1 : 0) + (rows[row + 1][column + 1] == '#' ? 1 : 0) >= 4)
+                return true;
+
+            return false;
         }
     }
 }
