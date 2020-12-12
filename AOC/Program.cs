@@ -11,245 +11,76 @@ namespace AOC
     {
         static void Main(string[] args)
         {
-            var inputFile = @"e:\git\aoc2020\input\Day11.txt";
+            var inputFile = @"e:\git\aoc2020\input\Day12.txt";
             // get and put input into array of operation, arg
-            var rows = File.ReadAllLines(inputFile).Select(s => new StringBuilder($".{s}.")).ToList();
-            //pad the seat chart
-            rows.Insert(0, new StringBuilder(new string('.', rows[0].Length)));
-            rows.Add(new StringBuilder(new string('.', rows[0].Length)));
+            var inputs = File.ReadAllLines(inputFile);
+            List<(string dir, int value)> lines = inputs.Select(s => (s.Substring(0, 1), int.Parse(s.Substring(1)))).ToList();
 
-            var seatsTaken = 0;
-            var stillWorking = false;
-            //  If a seat is empty (L) and there are no occupied seats adjacent to it, the seat becomes occupied.
-            //  If a seat is occupied(#) and four or more seats adjacent to it are also occupied, the seat becomes empty.
-            //  Otherwise, the seat's state does not change.
-            do
+            // Action N means to move north by the given value.
+            // Action S means to move south by the given value.
+            // Action E means to move east by the given value.
+            // Action W means to move west by the given value.
+            // Action L means to turn left the given number of degrees.
+            // Action R means to turn right the given number of degrees.
+            // Action F means to move forward by the given value in the direction the ship is currently facing.
+
+            var h = 0;
+            var v = 0;
+            var d = 0;
+            var currentDir = 0;
+
+            foreach (var line in lines)
             {
-                stillWorking = false;
-                var rowsClone = rows.ConvertAll(r => new StringBuilder(r.ToString())).ToList();
-
-
-                for (int row = 1; row < rows.Count - 1; row++)
+                switch (line.dir)
                 {
-                    for (int column = 1; column < rows[row].Length - 1; column++)
-                    {
-                        //L
-                        if (rowsClone[row][column] == 'L')
+                    case "L":
+                        currentDir = getDir(currentDir, -line.value);
+                        break;
+                    case "R":
+                        currentDir = getDir(currentDir, line.value);
+                        break;
+                    case "N":
+                        v += line.value;
+                        break;
+                    case "S":
+                        v -= line.value;
+                        break;
+                    case "E":
+                        h += line.value;
+                        break;
+                    case "W":
+                        h -= line.value;
+                        break;
+                    case "F":
+                        switch (currentDir)
                         {
-                            if (hasNoAdjacentSeats(rowsClone, row, column))
-                            {
-                                rows[row][column] = '#';
-                                seatsTaken++;
-                                stillWorking = true;
-                            }
+                            case 270:
+                                v += line.value;
+                                break;
+                            case 90:
+                                v -= line.value;
+                                break;
+                            case 0:
+                                h += line.value;
+                                break;
+                            case 180:
+                                h -= line.value;
+                                break;
                         }
-                        //#
-                        if (rowsClone[row][column] == '#')
-                        {
-                            if (hasFiveAdjacentOccupiedSeats(rowsClone, row, column))
-                            {
-                                rows[row][column] = 'L';
-                                seatsTaken--;
-                                stillWorking = true;
-                            }
-                        }
-                    }
+                        break;
+                    default:
+                        break;
                 }
-            } while (stillWorking);
-
-            Console.WriteLine(seatsTaken);
+            }
+            Console.WriteLine(Math.Abs(h)+Math.Abs(v));
         }
 
-        private static bool hasNoAdjacentSeats(List<StringBuilder> rows, int row, int column)
+        static int getDir(int currentDir, int change)
         {
-            var r = row;
-            var c = column;
-            // visible, go off in 8 directions.
-            // 1. up left.
-            while (r > 0 && c > 0)
-            {   
-                var test = rows[--r][--c];
-                if (test == '#') return false;
-                if (test == 'L') break;
-            } ;
-            r = row;
-            c = column;
-            // 2. up
-            while (r > 0)
-            {
-                var test = rows[--r][c];
-                if (test == '#') return false;
-                if (test == 'L') break;
-            } ;
-            r = row;
-            c = column;
-            // 3. up right
-            while (r > 0 && c < rows[0].Length - 2)
-            {
-                var test = rows[--r][++c];
-                if (test == '#') return false;
-                if (test == 'L') break;
-            } ;
-            r = row;
-            c = column;
-            // 4. left
-            while (c > 0)
-            {
-                var test = rows[r][--c];
-                if (test == '#') return false;
-                if (test == 'L') break;
-            } ;
-            r = row;
-            c = column;
-            // 5. right
-            while (c < rows[0].Length - 2)
-            {
-                var test = rows[r][++c];
-                if (test == '#') return false;
-                if (test == 'L') break;
-            } ;
-            r = row;
-            c = column;
-            // 6. down left
-            while (r < rows.Count - 2 && c > 0)
-            {
-                var test = rows[++r][--c];
-                if (test == '#') return false;
-                if (test == 'L') break;
-            } ;
-            r = row;
-            c = column;
-            // 7. down
-            while (r < rows.Count - 2)
-            {
-                var test = rows[++r][c];
-                if (test == '#') return false;
-                if (test == 'L') break;
-            };
-            r = row;
-            c = column;
-            // 8. down right
-            while (r < rows.Count - 2 && c < rows[0].Length - 2)
-            {
-                var test = rows[++r][++c];
-                if (test == '#') return false;
-                if (test == 'L') break;
-            };
-
-
-            return true;
-        }
-
-        private static bool hasFiveAdjacentOccupiedSeats(List<StringBuilder> rows, int row, int column)
-        {
-            var visibleOccupiedSeats = 0;
-            var r = row;
-            var c = column;
-            // visible, go off in 8 directions.
-            // 1. up left.
-            while (r > 0 && c > 0)
-            {
-                var test = rows[--r][--c];
-                if (test == '#')
-                {
-                    if (++visibleOccupiedSeats >= 5) return true;
-                    break;
-                }
-                else if (test == 'L') break;
-            };
-            r = row;
-            c = column;
-            // 2. up
-            while (r > 0)
-            {
-                var test = rows[--r][c];
-                if (test == '#')
-                {
-                    if (++visibleOccupiedSeats >= 5) return true;
-                    break;
-                }
-                else if (test == 'L') break;
-            };
-            r = row;
-            c = column;
-            // 3. up right
-            while (r > 0 && c < rows[0].Length - 2)
-            {
-                var test = rows[--r][++c];
-                if (test == '#')
-                {
-                    if (++visibleOccupiedSeats >= 5) return true;
-                    break;
-                }
-                else if (test == 'L') break;
-            };
-            r = row;
-            c = column;
-            // 4. left
-            while (c > 0)
-            {
-                var test = rows[r][--c];
-                if (test == '#')
-                {
-                    if (++visibleOccupiedSeats >= 5) return true;
-                    break;
-                }
-                else if (test == 'L') break;
-            };
-            r = row;
-            c = column;
-            // 5. right
-            while (c < rows[0].Length - 2)
-            {
-                var test = rows[r][++c];
-                if (test == '#')
-                {
-                    if (++visibleOccupiedSeats >= 5) return true;
-                    break;
-                }
-                else if (test == 'L') break;
-            };
-            r = row;
-            c = column;
-            // 6. down left
-            while (r < rows.Count - 2 && c > 0)
-            {
-                var test = rows[++r][--c];
-                if (test == '#')
-                {
-                    if (++visibleOccupiedSeats >= 5) return true;
-                    break;
-                }
-                else if (test == 'L') break;
-            };
-            r = row;
-            c = column;
-            // 7. down
-            while (r < rows.Count - 2)
-            {
-                var test = rows[++r][c];
-                if (test == '#')
-                {
-                    if (++visibleOccupiedSeats >= 5) return true;
-                    break;
-                }
-                else if (test == 'L') break;
-            };
-            r = row;
-            c = column;
-            // 8. down right
-            while (r < rows.Count - 2 && c < rows[0].Length - 2)
-            {
-                var test = rows[++r][++c];
-                if (test == '#')
-                {
-                    if (++visibleOccupiedSeats >= 5) return true;
-                    break;
-                }
-                else if (test == 'L') break;
-            };
-
-            return false;
+            currentDir += change;
+            if (currentDir >= 360) return currentDir - 360;
+            if (currentDir < 0) return currentDir + 360;
+            return currentDir;
         }
     }
 }
