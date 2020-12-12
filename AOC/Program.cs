@@ -26,7 +26,7 @@ namespace AOC
                 {
                     case 'L':
                     case 'R':
-                        setWaypoint(line);
+                        SetWaypoint(line);
                         break;
                     case 'N':
                         waypoint.v += value;
@@ -50,7 +50,7 @@ namespace AOC
             Console.WriteLine(Math.Abs(h) + Math.Abs(v));
         }
 
-        static void setWaypoint(string line)
+        static void SetWaypoint(string line)
         {
             int tempH;
             switch (line)
@@ -63,15 +63,14 @@ namespace AOC
                     break;
                 case "L180":
                 case "R180":
-                    tempH = -waypoint.h;
                     waypoint.v = -waypoint.v;
                     waypoint.h = -waypoint.h;
                     break;
                 case "L90":
                 case "R270":
-                    var newH = -waypoint.v;
+                    tempH = -waypoint.v;
                     waypoint.v = waypoint.h;
-                    waypoint.h = newH;
+                    waypoint.h = tempH;
                     break;
             }
 
