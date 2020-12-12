@@ -9,78 +9,73 @@ namespace AOC
 {
     class Program
     {
+        static (int h, int v) waypoint = (10, 1);
+        static int h = 0;
+        static int v = 0;
         static void Main(string[] args)
         {
             var inputFile = @"e:\git\aoc2020\input\Day12.txt";
             // get and put input into array of operation, arg
             var inputs = File.ReadAllLines(inputFile);
-            List<(string dir, int value)> lines = inputs.Select(s => (s.Substring(0, 1), int.Parse(s.Substring(1)))).ToList();
 
-            // Action N means to move north by the given value.
-            // Action S means to move south by the given value.
-            // Action E means to move east by the given value.
-            // Action W means to move west by the given value.
-            // Action L means to turn left the given number of degrees.
-            // Action R means to turn right the given number of degrees.
-            // Action F means to move forward by the given value in the direction the ship is currently facing.
-
-            var h = 0;
-            var v = 0;
-            var d = 0;
-            var currentDir = 0;
-
-            foreach (var line in lines)
+            foreach (var line in inputs)
             {
-                switch (line.dir)
+                // get the value
+                var value = int.Parse(line.Substring(1));
+                switch (line[0])
                 {
-                    case "L":
-                        currentDir = getDir(currentDir, -line.value);
+                    case 'L':
+                    case 'R':
+                        setWaypoint(line);
                         break;
-                    case "R":
-                        currentDir = getDir(currentDir, line.value);
+                    case 'N':
+                        waypoint.v += value;
                         break;
-                    case "N":
-                        v += line.value;
+                    case 'S':
+                        waypoint.v -= value;
                         break;
-                    case "S":
-                        v -= line.value;
+                    case 'E':
+                        waypoint.h += value;
                         break;
-                    case "E":
-                        h += line.value;
+                    case 'W':
+                        waypoint.h -= value;
                         break;
-                    case "W":
-                        h -= line.value;
-                        break;
-                    case "F":
-                        switch (currentDir)
-                        {
-                            case 270:
-                                v += line.value;
-                                break;
-                            case 90:
-                                v -= line.value;
-                                break;
-                            case 0:
-                                h += line.value;
-                                break;
-                            case 180:
-                                h -= line.value;
-                                break;
-                        }
-                        break;
-                    default:
+                    case 'F':
+                        // move ship towards waypoint
+                        h += value * waypoint.h;
+                        v += value * waypoint.v;
                         break;
                 }
             }
-            Console.WriteLine(Math.Abs(h)+Math.Abs(v));
+            Console.WriteLine(Math.Abs(h) + Math.Abs(v));
         }
 
-        static int getDir(int currentDir, int change)
+        static void setWaypoint(string line)
         {
-            currentDir += change;
-            if (currentDir >= 360) return currentDir - 360;
-            if (currentDir < 0) return currentDir + 360;
-            return currentDir;
+            int tempH;
+            switch (line)
+            {
+                case "L270":
+                case "R90":
+                    tempH = waypoint.v;
+                    waypoint.v = -waypoint.h;
+                    waypoint.h = tempH;
+                    break;
+                case "L180":
+                case "R180":
+                    tempH = -waypoint.h;
+                    waypoint.v = -waypoint.v;
+                    waypoint.h = -waypoint.h;
+                    break;
+                case "L90":
+                case "R270":
+                    var newH = -waypoint.v;
+                    waypoint.v = waypoint.h;
+                    waypoint.h = newH;
+                    break;
+            }
+
         }
+
     }
 }
