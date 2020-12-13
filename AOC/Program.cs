@@ -9,72 +9,24 @@ namespace AOC
 {
     class Program
     {
-        static (int h, int v) waypoint = (10, 1);
-        static int h = 0;
-        static int v = 0;
         static void Main(string[] args)
         {
-            var inputFile = @"e:\git\aoc2020\input\Day12.txt";
-            // get and put input into array of operation, arg
+            var inputFile = @"e:\git\aoc2020\input\Day13.txt";
             var inputs = File.ReadAllLines(inputFile);
+            var earliestTime = int.Parse(inputs[0]);
+            var busIds = inputs[1].Split(',').Where(b => int.TryParse(b, out var a)).Select(b => int.Parse(b)).ToList();
 
-            foreach (var line in inputs)
+            List<(int earliestTime, int busId)> lFound = new List<(int, int)>();
+            var bestTime = int.MaxValue;
+            var bestBusId = 0;
+            foreach (var busId in busIds)
             {
-                // get the value
-                var value = int.Parse(line.Substring(1));
-                switch (line[0])
-                {
-                    case 'L':
-                    case 'R':
-                        SetWaypoint(line);
-                        break;
-                    case 'N':
-                        waypoint.v += value;
-                        break;
-                    case 'S':
-                        waypoint.v -= value;
-                        break;
-                    case 'E':
-                        waypoint.h += value;
-                        break;
-                    case 'W':
-                        waypoint.h -= value;
-                        break;
-                    case 'F':
-                        // move ship towards waypoint
-                        h += value * waypoint.h;
-                        v += value * waypoint.v;
-                        break;
-                }
+                var busTime = ((earliestTime / busId) + 1) * busId;
+                var curBestTime = bestTime;
+                bestTime = Math.Min(bestTime, busTime);
+                if (curBestTime > bestTime) bestBusId = busId;
             }
-            Console.WriteLine(Math.Abs(h) + Math.Abs(v));
+            Console.WriteLine((bestTime - earliestTime) * bestBusId);
         }
-
-        static void SetWaypoint(string line)
-        {
-            int tempH;
-            switch (line)
-            {
-                case "L270":
-                case "R90":
-                    tempH = waypoint.v;
-                    waypoint.v = -waypoint.h;
-                    waypoint.h = tempH;
-                    break;
-                case "L180":
-                case "R180":
-                    waypoint.v = -waypoint.v;
-                    waypoint.h = -waypoint.h;
-                    break;
-                case "L90":
-                case "R270":
-                    tempH = -waypoint.v;
-                    waypoint.v = waypoint.h;
-                    waypoint.h = tempH;
-                    break;
-            }
-
-        }
-
     }
 }
