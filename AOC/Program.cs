@@ -11,45 +11,48 @@ namespace AOC
     {
         static void Main(string[] args)
         {
-            var inputFile = @"e:\git\aoc2020\input\Day13test.txt";
+            var inputFile = @"e:\git\aoc2020\input\Day13.txt";
             var inputs = File.ReadAllLines(inputFile);
-            var earliestTime = int.Parse(inputs[0]);
             var busIds = inputs[1].Split(',');
 
             var firstBus = int.Parse(busIds[0]);
             var XsInBetween = 0;
-            List<(int busId, int x)> buses = new List<(int busId, int tsDiff)>() { (firstBus, 0) };
 
+            // Create buses and the tsDiffs from the first bus
+            List<(int busId, int tsDiff)> buses = new List<(int, int)>() { (firstBus, 0) };
             var inc = 0;
             for (int i = 1; i < busIds.Length; i++)
             {
-                
+
                 if (busIds[i] == "x") XsInBetween++;
                 else
                 {
                     inc++;
-                    buses.Add((int.Parse(busIds[i]), XsInBetween+inc));
+                    buses.Add((int.Parse(busIds[i]), XsInBetween + inc));
                 }
             }
-            var found = false;
-            long firstBusTS = 0;
-            do
-            {
-                firstBusTS += firstBus;
 
-                long newTS = firstBusTS;
-                for (int i = 1; i < buses.Count; i++)
+            long tsJump = firstBus;
+            long curTS = firstBus;
+            // go through each bus
+            // find first match, set multiple (tsJump) and go to next bus and repeat
+            // At last bus you will have the first possible time that all match.
+            // The key was to increase the multiple on each iteration.
+            for (int i = 1; i < buses.Count; i++)
+            {
+                do
                 {
-                    newTS += buses[i].x + 1;
-                    if (newTS % buses[i].busId != 0)
+                    if ((curTS + buses[i].tsDiff) % buses[i].busId == 0)
                     {
+                        // got first match
+                        tsJump *= buses[i].busId;
                         break;
                     }
-                    // if we make it here and we are on last buss we found it
-                    if (i == buses.Count - 1) found = true;
-                }
-            } while (!found);
-            Console.WriteLine(firstBusTS);
+                    curTS += tsJump;
+                } while (true);
+            }
+
+            Console.WriteLine(curTS);
             Console.ReadLine();
         }
     }
