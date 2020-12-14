@@ -11,48 +11,40 @@ namespace AOC
     {
         static void Main(string[] args)
         {
-            var inputFile = @"e:\git\aoc2020\input\Day13.txt";
+            var inputFile = @"e:\git\aoc2020\input\Day14.txt";
             var inputs = File.ReadAllLines(inputFile);
-            var busIds = inputs[1].Split(',');
 
-            var firstBus = int.Parse(busIds[0]);
-            var XsInBetween = 0;
-
-            // Create buses and the tsDiffs from the first bus
-            List<(int busId, int tsDiff)> buses = new List<(int, int)>() { (firstBus, 0) };
-            var inc = 0;
-            for (int i = 1; i < busIds.Length; i++)
+            long ans = 0;
+            var mask = new char[36];
+            var memories = new Dictionary<int, long>();
+            for (long i = 0; i < inputs.Length; i++)
             {
+                var ansArray = new char[36];
+                var memToAdd = inputs[i].Replace("mem[", "").Replace("] =", "").Split(' ');
 
-                if (busIds[i] == "x") XsInBetween++;
+                //List<(long location, long value)> memories = new List<(long, long)>();
+                if (inputs[i].StartsWith("mask"))
+                { 
+                    mask = inputs[i].Split(' ')[2].ToCharArray();  
+                }
                 else
                 {
-                    inc++;
-                    buses.Add((int.Parse(busIds[i]), XsInBetween + inc));
-                }
-            }
-
-            long tsJump = firstBus;
-            long curTS = firstBus;
-            // go through each bus
-            // find first match, set multiple (tsJump) and go to next bus and repeat
-            // At last bus you will have the first possible time that all match.
-            // The key was to increase the multiple on each iteration.
-            for (int i = 1; i < buses.Count; i++)
-            {
-                do
-                {
-                    if ((curTS + buses[i].tsDiff) % buses[i].busId == 0)
+                    // calculate value to add
+                    (int location, long value) mem = (int.Parse(memToAdd[0]), long.Parse(memToAdd[1]));
+                    // get masked value
+                    var binary = Convert.ToString(mem.value, 2).PadLeft(36, '0');
+                    for (int j = 0; j < 36; j++)
                     {
-                        // got first match
-                        tsJump *= buses[i].busId;
-                        break;
+                        ansArray[j] = ((binary[j] == '1' && mask[j] != '0') || mask[j] == '1') ? '1' : '0';
                     }
-                    curTS += tsJump;
-                } while (true);
+                    memories[mem.location]= Convert.ToInt64(new String(ansArray), 2);
+                }
+
+                if (i==inputs.Length-1) ans += memories.Select(m => m.Value).Sum();
             }
 
-            Console.WriteLine(curTS);
+
+            Console.WriteLine(ans);
             Console.ReadLine();
         }
     }
