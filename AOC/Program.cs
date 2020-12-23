@@ -11,12 +11,12 @@ namespace AOC
     {
         static void Main(string[] args)
         {
-            var inputFile = @"e:\git\aoc2020\input\Day14test.txt";
+            var inputFile = @"e:\git\aoc2020\input\Day14.txt";
             var inputs = File.ReadAllLines(inputFile);
 
             long ans = 0;
             var mask = new char[36];
-            var memories = new Dictionary<int, long>();
+            var memories = new Dictionary<long, long>();
             for (int i = 0; i < inputs.Length; i++)
             {
                 var ansArray = new char[36];
@@ -38,16 +38,23 @@ namespace AOC
                     // get masked value
                     var binary = Convert.ToString(mem.location, 2).PadLeft(36, '0');
                     var toAdd = "";
+                    var div = locations.Length / 2;
+                    var x = "0";
                     for (int j = 0; j < 36; j++)
                     {
                         if (mask[j] == 'X')
                         {
                             for (int k = 0; k < locations.Length; k++)
                             {
-                                locations[k] += toAdd + (k % 2 == 0 ? "0" : "1");
+                                locations[k] += toAdd + x;
+                                // flip if necessary
+                                if ((k + 1) % div == 0)
+                                {
+                                    x = x == "0" ? "1" : "0";
+                                }
                                 if (j == 35)
                                 {
-                                    var loc = Convert.ToInt32(locations[i]);
+                                    var loc = Convert.ToInt64(locations[k], 2);
                                     if (memories.ContainsKey(loc))
                                         memories[loc] = value;
                                     else
@@ -55,12 +62,29 @@ namespace AOC
                                 }
                             }
                             toAdd = "";
+                            div /= 2;
                         }
                         else
-                            toAdd += binary[j];
+                        {
+                            toAdd += binary[j] == '1' || mask[j] == '1' ? '1' : '0';
+                            if (j == 35)
+                            {
+                                for (int k = 0; k < locations.Length; k++)
+                                {
+                                    locations[k] += toAdd;
+                                    var loc = Convert.ToInt64(locations[k], 2);
+                                    if (memories.ContainsKey(loc))
+                                        memories[loc] = value;
+                                    else
+                                        memories.Add(loc, value);
+                                }
+                                toAdd = "";
+                            }
+
+
+                        }
                     }
                 }
-
                 if (i == inputs.Length - 1) ans += memories.Select(m => m.Value).Sum();
             }
 
