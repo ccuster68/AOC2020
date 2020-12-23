@@ -11,73 +11,66 @@ namespace AOC
     {
         static void Main(string[] args)
         {
-            var inputFile = @"e:\git\aoc2020\input\Day11.txt";
-            // get and put input into array of operation, arg
-            var rows = File.ReadAllLines(inputFile).Select(s => new StringBuilder($".{s}.")).ToList();
-            //pad the seat chart
-            rows.Insert(0, new StringBuilder(new string('.', rows[0].Length + 2)));
-            rows.Add(new StringBuilder(new string('.', rows[0].Length + 2)));
+            var inputs = File.ReadAllLines(@"e:\git\aoc2020\input\Day16.txt").ToList();
 
-            var seatsTaken = 0;
-            var stillWorking = false;
-            //  If a seat is empty (L) and there are no occupied seats adjacent to it, the seat becomes occupied.
-            //  If a seat is occupied(#) and four or more seats adjacent to it are also occupied, the seat becomes empty.
-            //  Otherwise, the seat's state does not change.
-            do
+            var list = new List<int>();
+            foreach (var input in inputs.Where(i => i.Contains(" or ")).ToList())
             {
-                stillWorking = false;
-                var rowsClone = rows.ConvertAll(r => new StringBuilder(r.ToString())).ToList();
+                var firstIdx = input.IndexOf(": ") + 2;
+                var secondIdx = input.IndexOf("-");
+                var first = int.Parse(input.Substring(firstIdx, secondIdx-firstIdx));
+                firstIdx = input.IndexOf("-") + 1;
+                secondIdx = input.IndexOf(" or ");
+                var second = int.Parse(input.Substring(firstIdx, secondIdx - firstIdx));
+                firstIdx = input.IndexOf(" or ") + 4;
+                secondIdx = input.IndexOf("-", firstIdx);
+                var third = int.Parse(input.Substring(firstIdx, secondIdx - firstIdx));
+                firstIdx = input.IndexOf("-", secondIdx)+1;
+                var fourth = int.Parse(input.Substring(firstIdx));
 
-
-                for (int row = 1; row < rows.Count - 1; row++)
+                for (int i = first; i < second+1; i++)
                 {
-                    for (int column = 1; column < rows[row].Length - 1; column++)
+                    if (!list.Contains(i)) list.Add(i);
+                }
+
+                for (int i = third; i < fourth + 1; i++)
+                {
+                    if (!list.Contains(i)) list.Add(i);
+                }
+            }
+            list.Sort();
+
+            var ans = 0l;
+
+            bool found = false;
+            foreach (var input in inputs.Where(i => !i.Contains(" or ")).ToList())
+            {
+                if (!found)
+                {
+                    if (input != "nearby tickets:")
                     {
-                        //L
-                        if (rowsClone[row][column] == 'L')
-                        {
-                            if (hasNoAdjacentSeats(rowsClone, row, column))
-                            {
-                                rows[row][column] = '#';
-                                seatsTaken++;
-                                stillWorking = true;
-                            }
-                        }
-                        //#
-                        if (rowsClone[row][column] == '#')
-                        {
-                            if (hasFourAdjacentOccupiedSeats(rowsClone, row, column))
-                            {
-                                rows[row][column] = 'L';
-                                seatsTaken--;
-                                stillWorking = true;
-                            }
-                        }
+                        continue;
+                    }
+                    else
+                    {
+                        found = true;
+                        continue;
                     }
                 }
-            } while (stillWorking);
 
-            Console.WriteLine(seatsTaken);
-        }
+                foreach (var num in input.Split(',').Select(n => int.Parse(n)).ToArray())
+                {
+                    if (!list.Contains(num))
+                        ans += num;
+                }
 
-        private static bool hasNoAdjacentSeats(List<StringBuilder> rows, int row, int column)
-        {
-            if (rows[row - 1][column - 1] != '#' && rows[row - 1][column] != '#' && rows[row - 1][column + 1] != '#' &&
-                rows[row][column - 1] != '#' && rows[row][column + 1] != '#' &&
-                rows[row + 1][column - 1] != '#' && rows[row + 1][column] != '#' && rows[row + 1][column + 1] != '#')
-                return true;
+            }
+                
 
-            return false;
-        }
 
-        private static bool hasFourAdjacentOccupiedSeats(List<StringBuilder> rows, int row, int column)
-        {
-            if ((rows[row - 1][column - 1] == '#' ? 1 : 0) + (rows[row - 1][column] == '#' ? 1 : 0) + (rows[row - 1][column + 1] == '#' ? 1 : 0) +
-                (rows[row][column - 1] == '#' ? 1 : 0) + (rows[row][column + 1] == '#' ? 1 : 0) +
-                (rows[row + 1][column - 1] == '#' ? 1 : 0) + (rows[row + 1][column] == '#' ? 1 : 0) + (rows[row + 1][column + 1] == '#' ? 1 : 0) >= 4)
-                return true;
 
-            return false;
+            Console.WriteLine(ans);
+            Console.ReadLine();
         }
     }
 }
