@@ -11,85 +11,49 @@ namespace AOC
     {
         static void Main(string[] args)
         {
-            var inputFile = @"e:\git\aoc2020\input\Day14.txt";
-            var inputs = File.ReadAllLines(inputFile);
+            var inputFile = @"e:\git\aoc2020\input\Day15.txt";
+            var inputs = File.ReadAllText(inputFile).Split(',').Select(i => int.Parse(i)).ToList();
+            var ansArray = new List<int>();
+            var nextNum = inputs[inputs.Count - 1];
+            
+            var dic = new Dictionary<int, int>();
 
-            long ans = 0;
-            var mask = new char[36];
-            var memories = new Dictionary<long, long>();
-            for (int i = 0; i < inputs.Length; i++)
+            for (int i = 0; i < 30000000 - 1; i++)
             {
-                var ansArray = new char[36];
-                var memToAdd = inputs[i].Replace("mem[", "").Replace("] =", "").Split(' ');
+                var foundIndex = -1;
 
-                //List<(long location, long value)> memories = new List<(long, long)>();
-                if (inputs[i].StartsWith("mask"))
+                if (i < inputs.Count - 1)
                 {
-                    mask = inputs[i].Split(' ')[2].ToCharArray();
+                    dic.Add(inputs[i], i);
+                    continue;
                 }
+
                 else
                 {
-                    // calculate locations to add value to
-                    var value = long.Parse(memToAdd[1]);
-                    var locations = new string[int.Parse(Math.Pow(2, mask.Count(m => m == 'X')).ToString())];
-
-                    // calculate value to add
-                    (int location, long value) mem = (int.Parse(memToAdd[0]), long.Parse(memToAdd[1]));
-                    // get masked value
-                    var binary = Convert.ToString(mem.location, 2).PadLeft(36, '0');
-                    var toAdd = "";
-                    var div = locations.Length / 2;
-                    var x = "0";
-                    for (int j = 0; j < 36; j++)
+                    if (dic.ContainsKey(nextNum))
                     {
-                        if (mask[j] == 'X')
-                        {
-                            for (int k = 0; k < locations.Length; k++)
-                            {
-                                locations[k] += toAdd + x;
-                                // flip if necessary
-                                if ((k + 1) % div == 0)
-                                {
-                                    x = x == "0" ? "1" : "0";
-                                }
-                                if (j == 35)
-                                {
-                                    var loc = Convert.ToInt64(locations[k], 2);
-                                    if (memories.ContainsKey(loc))
-                                        memories[loc] = value;
-                                    else
-                                        memories.Add(loc, value);
-                                }
-                            }
-                            toAdd = "";
-                            div /= 2;
-                        }
-                        else
-                        {
-                            toAdd += binary[j] == '1' || mask[j] == '1' ? '1' : '0';
-                            if (j == 35)
-                            {
-                                for (int k = 0; k < locations.Length; k++)
-                                {
-                                    locations[k] += toAdd;
-                                    var loc = Convert.ToInt64(locations[k], 2);
-                                    if (memories.ContainsKey(loc))
-                                        memories[loc] = value;
-                                    else
-                                        memories.Add(loc, value);
-                                }
-                                toAdd = "";
-                            }
-
-
-                        }
+                        foundIndex = dic[nextNum];
+                        dic[nextNum] = i;
                     }
+                    else
+                        dic.Add(nextNum, i);
+
                 }
-                if (i == inputs.Length - 1) ans += memories.Select(m => m.Value).Sum();
+
+                //Console.WriteLine(nextNum);
+                ansArray.Add(nextNum);
+
+                // if last one added matches....
+                if (foundIndex >= 0)
+                    nextNum = i - foundIndex;
+                else
+                    nextNum = 0;
+
+
             }
 
 
-            Console.WriteLine(ans);
+            Console.WriteLine(nextNum);
             Console.ReadLine();
         }
     }
